@@ -84,7 +84,7 @@ app.get("/offers/", async (request, response) => {
   response.send(offersList);
 });
 //update offers
-app.post("/offers/edit", async (request, response) => {
+app.put("/offers/edit", async (request, response) => {
   const {
     id,
     couponCode,
@@ -94,10 +94,15 @@ app.post("/offers/edit", async (request, response) => {
     maxDiscount,
     minAmount,
   } = request.body;
-  const postOfferQuery = `INSERT INTO coupons(coupon_code,start_date,end_date,coupon_type,max_discount,min_amount)
-                                VALUES ('${couponCode}','${startDate}', '${endDate}', '${couponType}', '${maxDiscount}', '${minAmount}')
-                                WHERE id='${id}';`;
-  await db.run(postOfferQuery);
+  const updateOfferQuery = `UPDATE coupons 
+  SET coupon_code='${couponCode}',
+      start_date='${startDate}',
+      end_date='${endDate}',
+      coupon_type='${couponType}',
+      max_discount='${maxDiscount}',
+      min_amount='${minAmount}' 
+  WHERE id='${id}';`;
+  await db.run(updateOfferQuery);
   response.send("Offer Successfully Updated");
 });
 /// add new offers
