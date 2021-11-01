@@ -1,0 +1,4 @@
+get http://localhost:3000/offers/
+
+###
+get http://localhost:3000/offers/50OFF
