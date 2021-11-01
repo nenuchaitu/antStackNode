@@ -4,6 +4,7 @@ const path = require("path");
 const { open } = require("sqlite");
 const sqlite3 = require("sqlite3");
 const app = express();
+app.use(express.json());
 
 const dbPath = path.join(__dirname, "offers.db");
 
@@ -27,7 +28,7 @@ const initializeDBAndServer = async () => {
 initializeDBAndServer();
 
 //user
-app.get("/offers/", async (request, response) => {
+app.get("/offers/user", async (request, response) => {
   const getOffersQuery = `SELECT * 
     FROM 
     coupons
@@ -43,30 +44,49 @@ app.get("/offers/", async (request, response) => {
     }))
   );
 });
-app.get("/offers/:offerCode/", async (request, response) => {
-  const { offerCode } = request.params;
+//user apply coupon
+app.post("/offers/user/", async (request, response) => {
+  const { total, id } = request.body;
   const getOfferQuery = `SELECT * 
     FROM 
     coupons
     WHERE 
-    coupon_code='${offerCode}';`;
+    id ='${id}';`;
   const offer = await db.get(getOfferQuery);
   if (offer !== undefined) {
-    const CurrentDate = new Date();
+    const currentDate = new Date();
     const finalDate = new Date(offer.end_date);
-
-    if (finalDate < CurrentDate) {
+    if (finalDate < currentDate) {
       response.send("coupon expired");
     } else {
-      response.send(offer);
+      if (offer.coupon_type !== "PERCENT") {
+        response.send({ amount: offer.max_discount });
+      } else {
+        const maxDiscount = offer.max_discount;
+        const percentageAmount = (offer.coupon_code.slice(0, 2) * total) / 100;
+        if (percentageAmount > maxDiscount) {
+          response.send({ amount: maxDiscount });
+        } else {
+          response.send({ amount: percentageAmount });
+        }
+      }
     }
   } else {
     response.send("Invalid Coupon Code");
   }
 });
 //admin
-app.post("/offers/", authenticationToken, async (request, response) => {
+app.get("/offers/", async (request, response) => {
+  const getOffersQuery = `SELECT * 
+    FROM 
+    coupons;`;
+  const offersList = await db.all(getOffersQuery);
+  response.send(offersList);
+});
+//update offers
+app.post("/offers/edit", async (request, response) => {
   const {
+    id,
     couponCode,
     startDate,
     endDate,
@@ -75,18 +95,32 @@ app.post("/offers/", authenticationToken, async (request, response) => {
     minAmount,
   } = request.body;
   const postOfferQuery = `INSERT INTO coupons(coupon_code,start_date,end_date,coupon_type,max_discount,min_amount)
-                                VALUES ('${couponCode}','${startDate}', '${endDate}', '${couponType}', '${maxDiscount}', '${minAmount}');`;
+                                VALUES ('${couponCode}','${startDate}', '${endDate}', '${couponType}', '${maxDiscount}', '${minAmount}')
+                                WHERE id='${id}';`;
+  await db.run(postOfferQuery);
+  response.send("Offer Successfully Updated");
+});
+/// add new offers
+app.post("/offers/new", async (request, response) => {
+  const {
+    id,
+    couponCode,
+    startDate,
+    endDate,
+    couponType,
+    maxDiscount,
+    minAmount,
+  } = request.body;
+  const postOfferQuery = `INSERT INTO coupons(id,coupon_code,start_date,end_date,coupon_type,max_discount,min_amount)
+                                VALUES ('${id}','${couponCode}','${startDate}', '${endDate}', '${couponType}', '${maxDiscount}', '${minAmount}');`;
   await db.run(postOfferQuery);
   response.send("Offer Successfully Added");
 });
-app.delete(
-  "/districts/:offerId/",
-  authenticationToken,
-  async (request, response) => {
-    const { offerId } = request.params;
-    const deleteOfferQuery = `DELETE FROM coupons WHERE id='${offerId}';`;
-    await db.run(deleteOfferQuery);
-    response.send("Offer Removed");
-  }
-);
+app.delete("/offers/:offerId/", async (request, response) => {
+  const { offerId } = request.params;
+  const deleteOfferQuery = `DELETE FROM coupons WHERE id='${offerId}';`;
+  await db.run(deleteOfferQuery);
+  response.send("Offer Removed");
+});
+//export module
 module.exports = app;

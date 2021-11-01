@@ -1,4 +1,25 @@
-get http://localhost:3000/offers/
+GET http://localhost:3000/offers/
 
 ###
-get http://localhost:3000/offers/50OFF
+POST http://localhost:3000/offers/new/
+Content-Type: application/json
+
+{
+    "id":"4",
+    "couponCode":"35OFF",
+    "startDate":"2021-11-07",
+    "endDate":"2021-11-09",
+    "couponType":"PERCENT",
+    "maxDiscount":"60",
+    "minAmount":"180"
+}
+### 
+POST http://localhost:3000/offers/user
+Content-Type: application/json
+
+{
+    "total":"100",
+    "id":"7"
+}
+###
+DELETE http://localhost:3000/offers/4/
