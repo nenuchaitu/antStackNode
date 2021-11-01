@@ -1,0 +1,46 @@
+Arguments: 
+  /usr/local/bin/node /opt/yarn-v1.22.4/bin/yarn.js install
+
+PATH: 
+  /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+Yarn version: 
+  1.22.4
+
+Node version: 
+  12.18.3
+
+Platform: 
+  linux x64
+
+Trace: 
+  Error: ENOENT: no such file or directory, copyfile '/usr/local/share/.cache/yarn/v6/npm-ms-2.1.3-574c8138ce1d2b5861f0b44579dbadd60c6615b2-integrity/node_modules/ms/index.js' -> '/home/workspace/nodejs/antstacknode/node_modules/needle/node_modules/ms/index.js'
+
+npm manifest: 
+  {
+    "name": "antstacknode",
+    "version": "1.0.0",
+    "description": "",
+    "main": "app.js",
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+      "express": "^4.17.1",
+      "nodemon": "^2.0.14",
+      "sqlite": "^4.0.23",
+      "sqlite3": "^5.0.2"
+    },
+    "engines": {
+      "node": "12.18.3"
+    },
+    "scripts": {
+      "start": "nodemon app.js"
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
